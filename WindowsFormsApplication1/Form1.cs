@@ -18,6 +18,7 @@ namespace WindowsFormsApplication1
             public static string src_data = "";
             public static string trg_data = "";
             public static string open_file_name;
+            public static string json_file_data_begin = "{ \n \t \"Bubbles\": [ \t \t \t\n { \n \"Id\":0";
         }
         public Form1()
         {
@@ -124,5 +125,120 @@ namespace WindowsFormsApplication1
                 write_trg.Close();
             }
         }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            System.IO.StreamReader file = null;
+            OpenFileDialog openFileDialogforsrc = new OpenFileDialog();
+            openFileDialogforsrc.Filter = "Text Files|*.doc;*.docx;*.txt;*.src;*.trg;*.text";
+            openFileDialogforsrc.InitialDirectory = @"D:\ATO\PTIC";
+            openFileDialogforsrc.Title = "Select a Src File";
+            if (openFileDialogforsrc.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                try
+                {
+
+                    file = new System.IO.StreamReader(openFileDialogforsrc.FileName.ToString());
+                    Global_Variable.open_file_name = System.IO.Path.GetFileName(openFileDialogforsrc.FileName.ToString());
+                    textBox2.Text += openFileDialogforsrc.FileName.ToString();
+                    string line;
+                    while ((line = file.ReadLine()) != null)
+                    {
+                        Global_Variable.src_data += line;
+                    }
+
+                    Console.WriteLine("To write JSON SRC_DATA-----" + Global_Variable.src_data);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Exception: " + ex.Message);
+                }
+                finally
+                {
+                    file.Close();
+                }
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            System.IO.StreamReader file = null;
+            OpenFileDialog openFileDialogfortrg = new OpenFileDialog();
+            openFileDialogfortrg.Filter = "Text Files|*.doc;*.docx;*.txt;*.src;*.trg;*.text";
+            openFileDialogfortrg.InitialDirectory = @"D:\ATO\PTIC";
+            openFileDialogfortrg.Title = "Select a Trg File";
+            if (openFileDialogfortrg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                try
+                {
+
+                    file = new System.IO.StreamReader(openFileDialogfortrg.FileName.ToString());
+                    Global_Variable.open_file_name = System.IO.Path.GetFileName(openFileDialogfortrg.FileName.ToString());
+                    textBox3.Text += openFileDialogfortrg.FileName.ToString();
+                    string line;
+                    while ((line = file.ReadLine()) != null)
+                    {
+                        Global_Variable.trg_data += line;
+                    }
+
+                    Console.WriteLine("To write JSON TRG_DATA-----" + Global_Variable.trg_data);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Exception: " + ex.Message);
+                }
+                finally
+                {
+                    file.Close();
+                }
+            }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            System.IO.StreamWriter write_json = null;
+
+            try
+            {
+                if (Global_Variable.open_file_name.Contains("src") || Global_Variable.open_file_name.Contains("trg"))
+                {
+                    string[] separators = { "."};
+                    string[] temp;
+                    temp = Global_Variable.open_file_name.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+                    for (int i = 0; i < temp.Length; i++)
+                    {
+                        if (!temp[i].Equals("txt") && !temp[i].Equals("src") && !temp[i].Equals("trg"))
+                            Global_Variable.open_file_name = temp[i].Trim();
+                            Console.WriteLine("temp data " + temp[i]);
+                    }
+                }
+                //Pass the filepath and filename to the StreamWriter Constructor
+                write_json = new System.IO.StreamWriter(@"D:\ATO\PTIC\" + Global_Variable.open_file_name  + ".json", false, Encoding.UTF8);
+                write_json.WriteLine(Global_Variable.json_file_data_begin);
+                write_json.WriteLine(Global_Variable.src_data.Trim());
+               
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception: " + ex.Message);
+            }
+            finally
+            {
+                //Close the file
+                write_json.Close();
+                //write_trg.Close();
+            }
+        }
+
+       
     }
     }
