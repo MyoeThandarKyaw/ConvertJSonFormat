@@ -15,10 +15,11 @@ namespace WindowsFormsApplication1
     {
         static class Global_Variable
         {
+            public static int src_data_index = 0;
             public static string src_data = "";
             public static string trg_data = "";
             public static string open_file_name;
-            public static string json_file_data_begin = "{ \n \t \"Bubbles\": [ \t \t \t\n { \n \"Id\":0";
+            public static string json_file_data_begin = "{\n \t\"Bubbles\": [\t"; 
         }
         public Form1()
         {
@@ -97,7 +98,17 @@ namespace WindowsFormsApplication1
             System.IO.StreamWriter write_trg = null;
             try
             {
-
+                if (Global_Variable.open_file_name.Contains("txt"))
+                {
+                    string[] separators = { "." };
+                    string[] temp;
+                    temp = Global_Variable.open_file_name.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+                    for (int i = 0; i < temp.Length; i++)
+                    {
+                        if (!temp[i].Equals("txt"))
+                            Global_Variable.open_file_name = temp[i].Trim();
+                    }
+                }
                 //Pass the filepath and filename to the StreamWriter Constructor
                 write_src = new System.IO.StreamWriter(@"D:\ATO\PTIC\" + Global_Variable.open_file_name + ".src", false, Encoding.UTF8);
                 //Pass the filepath and filename to the StreamWriter Constructor
@@ -106,13 +117,6 @@ namespace WindowsFormsApplication1
                 //Write a line of text
                 write_src.WriteLine(Global_Variable.src_data.Trim());
                 write_trg.WriteLine(Global_Variable.trg_data.Trim());
-
-                //Write a second line of text
-               // sw.WriteLine("From the StreamWriter class");
-               
-                
-                
-              
             }
             catch (Exception ex)
             {
@@ -149,10 +153,10 @@ namespace WindowsFormsApplication1
                     string line;
                     while ((line = file.ReadLine()) != null)
                     {
-                        Global_Variable.src_data += line;
+                        Global_Variable.src_data += line+"-";
                     }
 
-                    Console.WriteLine("To write JSON SRC_DATA-----" + Global_Variable.src_data);
+                   // Console.WriteLine("To write JSON SRC_DATA-----" + Global_Variable.src_data);
                 }
                 catch (Exception ex)
                 {
@@ -183,10 +187,10 @@ namespace WindowsFormsApplication1
                     string line;
                     while ((line = file.ReadLine()) != null)
                     {
-                        Global_Variable.trg_data += line;
+                        Global_Variable.trg_data += line+"-";
                     }
 
-                    Console.WriteLine("To write JSON TRG_DATA-----" + Global_Variable.trg_data);
+                    //Console.WriteLine("To write JSON TRG_DATA-----" + Global_Variable.trg_data);
                 }
                 catch (Exception ex)
                 {
@@ -201,8 +205,7 @@ namespace WindowsFormsApplication1
 
         private void button5_Click(object sender, EventArgs e)
         {
-            System.IO.StreamWriter write_json = null;
-
+            System.IO.StreamWriter write_json = null;    
             try
             {
                 if (Global_Variable.open_file_name.Contains("src") || Global_Variable.open_file_name.Contains("trg"))
@@ -214,16 +217,27 @@ namespace WindowsFormsApplication1
                     {
                         if (!temp[i].Equals("txt") && !temp[i].Equals("src") && !temp[i].Equals("trg"))
                             Global_Variable.open_file_name = temp[i].Trim();
-                            Console.WriteLine("temp data " + temp[i]);
                     }
                 }
                 //Pass the filepath and filename to the StreamWriter Constructor
                 write_json = new System.IO.StreamWriter(@"D:\ATO\PTIC\" + Global_Variable.open_file_name  + ".json", false, Encoding.UTF8);
-                write_json.WriteLine(Global_Variable.json_file_data_begin);
-                write_json.WriteLine(Global_Variable.src_data.Trim());
-               
-
-
+                write_json.WriteLine(Global_Variable.json_file_data_begin);    
+                    string[] src_file_separator = {"-"};
+                    string[] src_file_data,trg_file_data;
+                    src_file_data = Global_Variable.src_data.Split(src_file_separator, StringSplitOptions.RemoveEmptyEntries);
+                    trg_file_data = Global_Variable.trg_data.Split(src_file_separator, StringSplitOptions.RemoveEmptyEntries);              
+                   if(src_file_data.Length==trg_file_data.Length) {
+                       for (int i = 0; i < src_file_data.Length; i++)
+                       {
+                           write_json.WriteLine("\t{");
+                           write_json.WriteLine("\t\"id\":0,");
+                           write_json.WriteLine("\t\"src\": \"" + src_file_data[i] + "\",");
+                           write_json.WriteLine("\t\"trg\": \"" + trg_file_data[i] + "\"\n\t},");
+                          
+                       }
+                       write_json.WriteLine(" ]\n}");
+                   }
+                       
 
 
             }
@@ -234,8 +248,7 @@ namespace WindowsFormsApplication1
             finally
             {
                 //Close the file
-                write_json.Close();
-                //write_trg.Close();
+                write_json.Close();     
             }
         }
 
